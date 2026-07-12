@@ -16,7 +16,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String version = '1.0.2';
+  String version = '1.0.3';
   bool isChecking = false;
 
   @override
@@ -88,26 +88,87 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const GlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(LucideIcons.info, color: AppColors.primary),
-                        SizedBox(width: 10),
-                        Text(
-                          'Acerca de',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
-                        ),
-                      ],
+              GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      backgroundColor: AppColors.background,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: const BoxDecoration(
+                              color: Color(0x1A4361EE),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(LucideIcons.mic, color: AppColors.primary, size: 50),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Transcriptor Liquid',
+                            style: TextStyle(color: AppColors.text, fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Versión $version',
+                            style: const TextStyle(color: AppColors.primary, fontSize: 14),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Desarrollado con Flutter y Google AI Studio. Diseño inmersivo Liquid Glass para la mejor experiencia de usuario.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: AppColors.textMuted, fontSize: 14),
+                          ),
+                          const SizedBox(height: 30),
+                          ListTile(
+                            leading: const Icon(LucideIcons.fileText, color: AppColors.textMuted),
+                            title: const Text('Términos y Condiciones', style: TextStyle(color: AppColors.text)),
+                            onTap: () {},
+                          ),
+                          ListTile(
+                            leading: const Icon(LucideIcons.shield, color: AppColors.textMuted),
+                            title: const Text('Política de Privacidad', style: TextStyle(color: AppColors.text)),
+                            onTap: () {},
+                          ),
+                          const SizedBox(height: 10),
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Cerrar', style: TextStyle(color: AppColors.primary)),
+                          ),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
-                      'Transcriptor Liquid - Creado para OscarAcosta17.',
-                      style: TextStyle(color: AppColors.textMuted),
-                    ),
-                  ],
+                  );
+                },
+                child: const GlassCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(LucideIcons.info, color: AppColors.primary),
+                              SizedBox(width: 10),
+                              Text(
+                                'Acerca de',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
+                              ),
+                            ],
+                          ),
+                          Icon(LucideIcons.chevronRight, color: AppColors.textMuted),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Información legal, versión y créditos de la aplicación.',
+                        style: TextStyle(color: AppColors.textMuted),
+                      ),
+                    ],
+                  ),
                 ),
               )
             ],

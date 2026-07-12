@@ -38,4 +38,26 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_historyKey, jsonEncode(history));
   }
+
+  static Future<bool> canTranscribeToday() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateTime.now().toIso8601String().split('T').first;
+    final lastDate = prefs.getString('last_transcription_date');
+    
+    if (lastDate != today) {
+      // New day, reset count
+      await prefs.setString('last_transcription_date', today);
+      await prefs.setInt('transcription_count', 0);
+      return true;
+    }
+    
+    final count = prefs.getInt('transcription_count') ?? 0;
+    return count < 3;
+  }
+
+  static Future<void> incrementTranscriptionCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final count = prefs.getInt('transcription_count') ?? 0;
+    await prefs.setInt('transcription_count', count + 1);
+  }
 }

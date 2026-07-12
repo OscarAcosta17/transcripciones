@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class UpdateService {
   static const String repo = 'OscarAcosta17/transcripciones';
-  static const String currentVersion = '1.0.2'; // Should match pubspec.yaml
+  static const String currentVersion = '1.0.3'; // Should match pubspec.yaml
 
   static Future<void> checkForUpdates(BuildContext context, {bool silent = false}) async {
     try {

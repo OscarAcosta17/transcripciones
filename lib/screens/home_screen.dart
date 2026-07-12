@@ -4,6 +4,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 import '../theme/colors.dart';
 import '../widgets/glass_card.dart';
@@ -43,6 +45,30 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _handleTranscribe() async {
     if (audioFilePath == null) return;
 
+    final file = File(audioFilePath!);
+    if (file.existsSync()) {
+      final sizeInBytes = file.lengthSync();
+      final sizeInMb = sizeInBytes / (1024 * 1024);
+      if (sizeInMb > 15) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('El archivo es demasiado grande (máximo 15 MB)'), backgroundColor: AppColors.danger),
+          );
+        }
+        return;
+      }
+    }
+
+    final canTranscribe = await StorageService.canTranscribeToday();
+    if (!canTranscribe) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Has alcanzado el límite de 3 transcripciones diarias.'), backgroundColor: AppColors.danger),
+        );
+      }
+      return;
+    }
+
     setState(() {
       isTranscribing = true;
     });
@@ -59,6 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
         'date': DateTime.now().toIso8601String(),
         'text': text,
       });
+      await StorageService.incrementTranscriptionCount();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -105,10 +132,73 @@ class _HomeScreenState extends State<HomeScreen> {
                 _exportFile('md');
               },
             ),
+            ListTile(
+              title: const Text('Documento PDF (.pdf)', style: TextStyle(color: AppColors.text)),
+              leading: const Icon(LucideIcons.file, color: AppColors.primary),
+              onTap: () {
+                Navigator.pop(ctx);
+                _exportPdf();
+              },
+            ),
+            ListTile(
+              title: const Text('Documento Word (.doc)', style: TextStyle(color: AppColors.text)),
+              leading: const Icon(LucideIcons.fileText, color: AppColors.primary),
+              onTap: () {
+                Navigator.pop(ctx);
+                _exportDoc();
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _exportPdf() async {
+    if (transcriptionResult == null) return;
+    try {
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.MultiPage(
+          build: (pw.Context context) => [
+            pw.Text('Transcripción: $audioFileName', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 20),
+            pw.Text(transcriptionResult!),
+          ],
+        ),
+      );
+
+      final directory = await getTemporaryDirectory();
+      final name = audioFileName?.split('.').first ?? 'audio';
+      final file = File('${directory.path}/Transcripcion_$name.pdf');
+      await file.writeAsBytes(await pdf.save());
+      await Share.shareXFiles([XFile(file.path)], text: 'Transcripción PDF');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al exportar PDF')));
+    }
+  }
+
+  Future<void> _exportDoc() async {
+    if (transcriptionResult == null) return;
+    try {
+      final htmlContent = '''
+      <html>
+      <head><meta charset="utf-8"></head>
+      <body>
+      <h1>Transcripción: $audioFileName</h1>
+      <p>${transcriptionResult!.replaceAll('\n', '<br>')}</p>
+      </body>
+      </html>
+      ''';
+
+      final directory = await getTemporaryDirectory();
+      final name = audioFileName?.split('.').first ?? 'audio';
+      final file = File('${directory.path}/Transcripcion_$name.doc');
+      await file.writeAsString(htmlContent);
+      await Share.shareXFiles([XFile(file.path)], text: 'Transcripción DOC');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al exportar DOC')));
+    }
   }
 
   Future<void> _exportFile(String extension) async {
