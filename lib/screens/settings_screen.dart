@@ -16,12 +16,22 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String version = '1.0.3';
+  String version = 'Cargando...';
   bool isChecking = false;
 
   @override
   void initState() {
     super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final v = await UpdateService.getCurrentVersion();
+    if (mounted) {
+      setState(() {
+        version = v;
+      });
+    }
   }
 
   Future<void> _checkUpdates() async {
@@ -73,9 +83,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    const Text(
-                      'Versión actual: ${UpdateService.currentVersion}',
-                      style: TextStyle(color: AppColors.textMuted),
+                    Text(
+                      'Versión actual: $version',
+                      style: const TextStyle(color: AppColors.textMuted),
                     ),
                     const SizedBox(height: 15),
                     GlassButton(
