@@ -16,29 +16,12 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final TextEditingController _apiKeyController = TextEditingController();
+  String version = '1.0.1';
   bool isChecking = false;
 
   @override
   void initState() {
     super.initState();
-    _loadApiKey();
-  }
-
-  Future<void> _loadApiKey() async {
-    final key = await StorageService.getApiKey();
-    if (key != null) {
-      _apiKeyController.text = key;
-    }
-  }
-
-  Future<void> _saveApiKey() async {
-    await StorageService.saveApiKey(_apiKeyController.text);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('API Key guardada exitosamente')),
-      );
-    }
   }
 
   Future<void> _checkUpdates() async {
@@ -72,53 +55,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     fontWeight: FontWeight.bold,
                     color: AppColors.text,
                   ),
-                ),
-              ),
-              GlassCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(LucideIcons.key, color: AppColors.primary),
-                        SizedBox(width: 10),
-                        Text(
-                          'OpenAI API Key',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.text),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Para utilizar el servicio de transcripción de Whisper, necesitas una clave API de OpenAI.',
-                      style: TextStyle(color: AppColors.textMuted),
-                    ),
-                    const SizedBox(height: 15),
-                    TextField(
-                      controller: _apiKeyController,
-                      obscureText: true,
-                      style: const TextStyle(color: AppColors.text),
-                      decoration: InputDecoration(
-                        hintText: 'sk-...',
-                        hintStyle: const TextStyle(color: AppColors.textMuted),
-                        filled: true,
-                        fillColor: Colors.black26,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.white24),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: Colors.white12),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    GlassButton(
-                      title: 'Guardar Clave API',
-                      onPressed: _saveApiKey,
-                    ),
-                  ],
                 ),
               ),
               const SizedBox(height: 20),
