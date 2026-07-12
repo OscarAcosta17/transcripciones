@@ -80,12 +80,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _handleExport() async {
     if (transcriptionResult == null) return;
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.background,
+        title: const Text('Exportar como', style: TextStyle(color: AppColors.text)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Texto plano (.txt)', style: TextStyle(color: AppColors.text)),
+              leading: const Icon(LucideIcons.fileText, color: AppColors.primary),
+              onTap: () {
+                Navigator.pop(ctx);
+                _exportFile('txt');
+              },
+            ),
+            ListTile(
+              title: const Text('Markdown (.md)', style: TextStyle(color: AppColors.text)),
+              leading: const Icon(LucideIcons.fileCode, color: AppColors.primary),
+              onTap: () {
+                Navigator.pop(ctx);
+                _exportFile('md');
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _exportFile(String extension) async {
     try {
       final directory = await getTemporaryDirectory();
       final name = audioFileName?.split('.').first ?? 'audio';
-      final file = File('${directory.path}/Transcripcion_$name.txt');
+      final file = File('${directory.path}/Transcripcion_$name.$extension');
       await file.writeAsString(transcriptionResult!);
-      await Share.shareXFiles([XFile(file.path)], text: 'Transcripción');
+      await Share.shareXFiles([XFile(file.path)], text: 'Transcripción generada por Transcriptor Liquid');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error al exportar')),
@@ -156,6 +188,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         isLoading: isTranscribing,
                         onPressed: _handleTranscribe,
                       ),
+                      if (isTranscribing) ...[
+                        const SizedBox(height: 15),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: const LinearProgressIndicator(
+                            backgroundColor: Colors.white12,
+                            color: AppColors.primary,
+                            minHeight: 6,
+                          ),
+                        ),
+                      ],
                     ],
                   ],
                 ),
@@ -188,8 +231,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 15),
                       GlassButton(
-                        title: 'Exportar TXT',
+                        title: 'Exportar Resultados',
                         baseColor: AppColors.success,
+                        icon: const Icon(LucideIcons.download, color: AppColors.text, size: 20),
                         onPressed: _handleExport,
                       ),
                     ],

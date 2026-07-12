@@ -16,7 +16,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String version = '1.0.1';
+  String version = '1.0.2';
   bool isChecking = false;
 
   @override

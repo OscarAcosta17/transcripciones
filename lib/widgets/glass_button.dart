@@ -57,12 +57,6 @@ class _GlassButtonState extends State<GlassButton> {
               decoration: BoxDecoration(
                 color: _isPressed ? AppColors.glassBackgroundPressed : AppColors.glassBackground,
                 borderRadius: BorderRadius.circular(30),
-                border: const Border(
-                  top: BorderSide(color: Colors.white30, width: 1.0),
-                  left: BorderSide(color: Colors.white30, width: 1.0),
-                  right: BorderSide(color: Colors.white12, width: 1.0),
-                  bottom: BorderSide(color: Colors.white12, width: 1.0),
-                ),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
